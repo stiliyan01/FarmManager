@@ -1,21 +1,11 @@
-import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-
 import DeleteUser from '@/components/delete-user';
+import FormField from '@/components/form-field';
 import HeadingSmall from '@/components/heading-small';
-import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
-
-const breadcrumbs = [
-    {
-        title: 'Profile settings',
-        href: '/settings/profile',
-    },
-];
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 
 export default function Profile({ mustVerifyEmail, status }) {
     const { auth } = usePage().props;
@@ -25,88 +15,56 @@ export default function Profile({ mustVerifyEmail, status }) {
         email: auth.user.email,
     });
 
-    const submit = (e) => {
-        e.preventDefault();
-
+    function submit(event) {
+        event.preventDefault();
         patch(route('profile.update'));
-    };
+    }
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
+        <AppLayout>
+            <Head title="Профил" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Profile information" description="Update your name and email address" />
+                    <HeadingSmall title="Данни за профила" description="Името и имейлът ви" />
 
-                    <form onSubmit={submit} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
-
+                    <form onSubmit={submit} className="grid gap-5">
+                        <FormField label="Име и фамилия" htmlFor="name" error={errors.name}>
                             <Input
                                 id="name"
-                                className="mt-1 block w-full"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
                                 required
                                 autoComplete="name"
-                                placeholder="Full name"
+                                value={data.name}
+                                onChange={(event) => setData('name', event.target.value)}
                             />
+                        </FormField>
 
-                            <InputError className="mt-2" message={errors.name} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
-
+                        <FormField label="Имейл" htmlFor="email" error={errors.email}>
                             <Input
                                 id="email"
                                 type="email"
-                                className="mt-1 block w-full"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
                                 required
                                 autoComplete="username"
-                                placeholder="Email address"
+                                value={data.email}
+                                onChange={(event) => setData('email', event.target.value)}
                             />
-
-                            <InputError className="mt-2" message={errors.email} />
-                        </div>
+                        </FormField>
 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
-                            <div>
-                                <p className="mt-2 text-sm text-neutral-800">
-                                    Your email address is unverified.
-                                    <Link
-                                        href={route('verification.send')}
-                                        method="post"
-                                        as="button"
-                                        className="rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
-                                    >
-                                        Click here to re-send the verification email.
-                                    </Link>
-                                </p>
-
-                                {status === 'verification-link-sent' && (
-                                    <div className="mt-2 text-sm font-medium text-green-600">
-                                        A new verification link has been sent to your email address.
-                                    </div>
-                                )}
-                            </div>
+                            <p>
+                                Имейлът ви не е потвърден.{' '}
+                                <Link href={route('verification.send')} method="post" as="button" className="text-primary underline">
+                                    Изпрати линк за потвърждение отново.
+                                </Link>
+                                {status === 'verification-link-sent' && <span className="mt-2 block text-green-700">Изпратихме ви нов линк.</span>}
+                            </p>
                         )}
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save</Button>
-
-                            <Transition
-                                show={recentlySuccessful}
-                                enter="transition ease-in-out"
-                                enterFrom="opacity-0"
-                                leave="transition ease-in-out"
-                                leaveTo="opacity-0"
-                            >
-                                <p className="text-sm text-neutral-600">Saved</p>
-                            </Transition>
+                            <Button type="submit" disabled={processing}>
+                                Запази
+                            </Button>
+                            {recentlySuccessful && <p className="text-muted-foreground">Запазено.</p>}
                         </div>
                     </form>
                 </div>

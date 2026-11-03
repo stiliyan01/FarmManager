@@ -1,38 +1,31 @@
-// Components
-import { Head, useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/auth-layout';
+import { Head, useForm } from '@inertiajs/react';
 
 export default function VerifyEmail({ status }) {
     const { post, processing } = useForm({});
 
-    const submit = (e) => {
-        e.preventDefault();
-
+    function submit(event) {
+        event.preventDefault();
         post(route('verification.send'));
-    };
+    }
 
     return (
-        <AuthLayout title="Verify email" description="Please verify your email address by clicking on the link we just emailed to you.">
-            <Head title="Email verification" />
+        <AuthLayout title="Потвърдете имейла си" description="Изпратихме ви имейл с линк за потвърждение. Моля, отворете го.">
+            <Head title="Потвърждение на имейл" />
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address you provided during registration.
-                </div>
+                <div className="mb-4 text-center font-medium text-green-700">Изпратихме ви нов линк за потвърждение.</div>
             )}
 
-            <form onSubmit={submit} className="space-y-6 text-center">
-                <Button disabled={processing} variant="secondary">
-                    {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                    Resend verification email
+            <form onSubmit={submit} className="grid gap-4 text-center">
+                <Button type="submit" variant="secondary" disabled={processing}>
+                    Изпрати линка отново
                 </Button>
 
-                <TextLink href={route('logout')} method="post" className="mx-auto block text-sm">
-                    Log out
+                <TextLink href={route('logout')} method="post" as="button" className="mx-auto">
+                    Изход
                 </TextLink>
             </form>
         </AuthLayout>

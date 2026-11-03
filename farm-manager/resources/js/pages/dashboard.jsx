@@ -1,34 +1,23 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import Panel from '@/components/panel';
 import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 
-const breadcrumbs = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
-
+// Временно табло – за роли, чиито екрани още не са направени, и за собственик без ферма.
 export default function Dashboard() {
+    const { auth } = usePage().props;
+
+    let message = 'Таблото за вашата роля ще бъде добавено скоро.';
+    if (auth.user.role === 'owner') {
+        message = 'Все още нямате ферма. Когато ОДБХ регистрира ваша ферма, ще получите покана по имейл.';
+    }
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
-            </div>
+        <AppLayout>
+            <Head title="Табло" />
+
+            <h1 className="mb-6 text-[28px] font-bold tracking-tight">Здравейте, {auth.user.name}</h1>
+
+            <Panel>{message}</Panel>
         </AppLayout>
     );
 }
