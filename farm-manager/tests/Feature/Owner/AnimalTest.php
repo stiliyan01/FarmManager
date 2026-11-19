@@ -16,13 +16,50 @@ beforeEach(function () {
     $this->sheep = Species::factory()->create(['name' => 'Овца']);
 });
 
-test('owner sees the animals of own farm', function () {
-    Animal::factory()->count(3)->create(['farm_id' => $this->farm->id, 'species_id' => $this->sheep->id]);
+test('owner sees the animals of own farm, 10 per page', function () {
+    Animal::factory()->count(12)->create(['farm_id' => $this->farm->id, 'species_id' => $this->sheep->id]);
 
     $this->actingAs($this->owner)
         ->get(route('farms.animals.index', $this->farm))
         ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('animals/index')->has('animals', 3));
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('animals/index')
+            ->has('animals.data', 10)
+            ->where('animals.total', 12)
+        );
+
+    $this->actingAs($this->owner)
+        ->get(route('farms.animals.index', ['farm' => $this->farm, 'page' => 2]))
+        ->assertInertia(fn (Assert $page) => $page->has('animals.data', 2));
+});
+
+test('animals can be filtered by status and searched by ear tag', function () {
+    Animal::factory()->create(['farm_id' => $this->farm->id, 'ear_tag' => 'BG1000000001']);
+    Animal::factory()->create(['farm_id' => $this->farm->id, 'ear_tag' => 'BG2000000002']);
+    Animal::factory()->create(['farm_id' => $this->farm->id, 'ear_tag' => 'BG3000000003', 'status' => AnimalStatus::Sold]);
+
+    // По подразбиране се показват само активните.
+    $this->actingAs($this->owner)
+        ->get(route('farms.animals.index', $this->farm))
+        ->assertInertia(fn (Assert $page) => $page->where('animals.total', 2));
+
+    $this->actingAs($this->owner)
+        ->get(route('farms.animals.index', ['farm' => $this->farm, 'status' => 'sold']))
+        ->assertInertia(fn (Assert $page) => $page->where('animals.total', 1)->where('animals.data.0.ear_tag', 'BG3000000003'));
+
+    $this->actingAs($this->owner)
+        ->get(route('farms.animals.index', ['farm' => $this->farm, 'search' => '2000']))
+        ->assertInertia(fn (Assert $page) => $page->where('animals.total', 1)->where('animals.data.0.ear_tag', 'BG2000000002'));
+});
+
+test('weight cannot be recorded for a sold animal', function () {
+    $animal = Animal::factory()->create(['farm_id' => $this->farm->id, 'status' => AnimalStatus::Sold]);
+
+    $this->actingAs($this->owner)
+        ->post(route('animals.weights.store', $animal), ['weight_kg' => 50, 'measured_at' => today()->toDateString()])
+        ->assertSessionHasErrors('weight_kg');
+
+    expect($animal->weights()->count())->toBe(0);
 });
 
 test('owner can add an animal', function () {

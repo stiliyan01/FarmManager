@@ -118,5 +118,57 @@ class FarmSeeder extends Seeder
             'assigned_by' => $registrar->id,
             'valid_from' => $changeDate,
         ]);
+
+        $this->createSmallerFarms($shumen, $registrar, $vetIvan, $vetMaria);
+    }
+
+    // По-малките ферми в областта – за да е пълен списъкът на регистратора и инспектора.
+    // Могила е без ветеринар, а Венец още чака собственика да приеме поканата.
+    private function createSmallerFarms(Region $region, User $registrar, User $vetIvan, User $vetMaria): void
+    {
+        $farms = [
+            ['reg_number' => '9700-0063', 'name' => 'Ферма Ивански', 'settlement' => 'с. Ивански', 'owner' => 'owner4@stado.test', 'invitation' => null, 'vet' => $vetIvan, 'capacity' => 30],
+            ['reg_number' => '9700-0071', 'name' => 'Ферма Царев брод', 'settlement' => 'с. Царев брод', 'owner' => 'owner5@stado.test', 'invitation' => null, 'vet' => $vetMaria, 'capacity' => 20],
+            ['reg_number' => '9700-0085', 'name' => 'Овцеферма Велики Преслав', 'settlement' => 'гр. Велики Преслав', 'owner' => 'owner6@stado.test', 'invitation' => null, 'vet' => $vetIvan, 'capacity' => 40],
+            ['reg_number' => '9700-0092', 'name' => 'Ферма Могила', 'settlement' => 'с. Могила', 'owner' => 'owner7@stado.test', 'invitation' => null, 'vet' => null, 'capacity' => 25],
+            ['reg_number' => '9700-0104', 'name' => 'Ферма Върбица', 'settlement' => 'гр. Върбица', 'owner' => 'owner8@stado.test', 'invitation' => null, 'vet' => $vetMaria, 'capacity' => 30],
+            ['reg_number' => '9700-0117', 'name' => 'Ферма Венец', 'settlement' => 'с. Венец', 'owner' => null, 'invitation' => 'venets.ferma@example.com', 'vet' => $vetMaria, 'capacity' => 50],
+            ['reg_number' => '9700-0123', 'name' => 'Кравеферма Хитрино', 'settlement' => 'с. Хитрино', 'owner' => 'owner9@stado.test', 'invitation' => null, 'vet' => $vetIvan, 'capacity' => 15],
+        ];
+
+        foreach ($farms as $data) {
+            $ownerId = null;
+            if ($data['owner'] !== null) {
+                $ownerId = User::where('email', $data['owner'])->first()->id;
+            }
+
+            $farm = Farm::create([
+                'region_id' => $region->id,
+                'reg_number' => $data['reg_number'],
+                'name' => $data['name'],
+                'settlement' => $data['settlement'],
+                'owner_id' => $ownerId,
+                'capacity' => $data['capacity'],
+            ]);
+
+            if ($data['vet'] !== null) {
+                FarmVet::create([
+                    'farm_id' => $farm->id,
+                    'vet_id' => $data['vet']->id,
+                    'assigned_by' => $registrar->id,
+                    'valid_from' => today()->subMonths(fake()->numberBetween(8, 36)),
+                ]);
+            }
+
+            if ($data['invitation'] !== null) {
+                Invitation::create([
+                    'farm_id' => $farm->id,
+                    'email' => $data['invitation'],
+                    'role' => Role::Owner,
+                    'token' => Str::random(64),
+                    'expires_at' => now()->addDays(5),
+                ]);
+            }
+        }
     }
 }

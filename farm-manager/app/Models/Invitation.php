@@ -33,4 +33,27 @@ class Invitation extends Model
     {
         return $this->belongsTo(Farm::class);
     }
+
+    // pending – чака отговор, accepted – приета, expired – изтекла.
+    public function status(): string
+    {
+        if ($this->accepted_at !== null) {
+            return 'accepted';
+        }
+
+        if ($this->expires_at->isPast()) {
+            return 'expired';
+        }
+
+        return 'pending';
+    }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status()) {
+            'accepted' => 'приета',
+            'expired' => 'изтекла',
+            'pending' => 'чака отговор',
+        };
+    }
 }

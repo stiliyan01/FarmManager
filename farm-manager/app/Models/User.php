@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -33,6 +34,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => Role::class,
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -52,6 +54,12 @@ class User extends Authenticatable
     public function vetAssignments(): HasMany
     {
         return $this->hasMany(FarmVet::class, 'vet_id');
+    }
+
+    // Фермите, към които ветеринарят е назначен в момента.
+    public function assignedFarms(): BelongsToMany
+    {
+        return $this->belongsToMany(Farm::class, 'farm_vet', 'vet_id', 'farm_id')->wherePivotNull('valid_to');
     }
 
     public function vetEvents(): HasMany

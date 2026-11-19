@@ -20,7 +20,7 @@ const tabs = [
 ];
 
 // Профил на животно.
-export default function AnimalShow({ farm, animal, quarantine, events, vaccinations, weights, offspring, canEdit }) {
+export default function AnimalShow({ farm, animal, quarantine, events, vaccinations, weights, offspring, canEdit, canAddVetEvent }) {
     const [activeTab, setActiveTab] = useState('history');
     const [isStatusFormOpen, setIsStatusFormOpen] = useState(false);
 
@@ -46,19 +46,28 @@ export default function AnimalShow({ farm, animal, quarantine, events, vaccinati
             </div>
 
             <header className="mb-5 flex flex-wrap items-start justify-between gap-4">
-                <div>
+                <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2.5">
-                        <h1 className="text-[28px] font-bold tracking-tight">{animal.ear_tag}</h1>
+                        <h1 className="text-2xl font-bold tracking-tight md:text-[28px]">{animal.ear_tag}</h1>
                         <Pill color={animalStatusColors[animal.status]}>{animal.status_label}</Pill>
                     </div>
                     <div className="mt-1.5 text-gray-700">{description}</div>
                 </div>
 
-                {canEdit && animal.is_active && (
-                    <Button variant="outline" onClick={() => setIsStatusFormOpen(true)}>
-                        Промени статус
-                    </Button>
-                )}
+                <div className="flex flex-wrap gap-2.5">
+                    {canEdit && animal.is_active && (
+                        <Button variant="outline" onClick={() => setIsStatusFormOpen(true)}>
+                            Промени статус
+                        </Button>
+                    )}
+
+                    {/* Правило 6: продадено или умряло животно не получава нови записи */}
+                    {canAddVetEvent && animal.is_active && (
+                        <Button asChild>
+                            <Link href={route('farms.vet-events.create', { farm: farm.id, animal_id: animal.id })}>+ Нов запис</Link>
+                        </Button>
+                    )}
+                </div>
             </header>
 
             {isStatusFormOpen && <StatusForm animal={animal} onClose={() => setIsStatusFormOpen(false)} />}
@@ -66,7 +75,7 @@ export default function AnimalShow({ farm, animal, quarantine, events, vaccinati
             {quarantine && <QuarantineBanner quarantine={quarantine} />}
 
             <div className="flex flex-wrap items-start gap-4">
-                <section className="bg-card min-w-0 flex-[2_1_480px] rounded-lg border px-5 pt-2 pb-5">
+                <section className="bg-card min-w-0 flex-[2_1_480px] rounded-lg border px-4 pt-2 pb-5 sm:px-5">
                     <div role="tablist" className="flex gap-1 overflow-x-auto border-b">
                         {tabs.map((tab) => (
                             <button

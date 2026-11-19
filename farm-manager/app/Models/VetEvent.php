@@ -66,4 +66,16 @@ class VetEvent extends Model
     {
         return $this->belongsTo(Medication::class);
     }
+
+    // След колко дни от мероприятието ветеринарят е въвел записа.
+    public function enteredAfterDays(): int
+    {
+        return (int) $this->event_date->diffInDays($this->created_at);
+    }
+
+    // Правило 3: записът е въведен повече от 7 дни след мероприятието – сигнал за инспектора.
+    public function isLate(): bool
+    {
+        return $this->enteredAfterDays() > 7;
+    }
 }

@@ -65,6 +65,21 @@
     --radius: 0.75rem;
 }
 
+/* Бутоните и връзките на ОДБХ са в синьо, на админа – в графит (класът се слага в app-layout.jsx). */
+.theme-odbh {
+    --color-primary: #26385a;
+    --color-ring: #26385a;
+    --color-accent: #e7eef8;
+    --color-accent-foreground: #26385a;
+}
+
+.theme-admin {
+    --color-primary: #1c1f25;
+    --color-ring: #1c1f25;
+    --color-accent: #ecedf0;
+    --color-accent-foreground: #2a2e35;
+}
+
 @layer base {
     * {
         @apply border-border;

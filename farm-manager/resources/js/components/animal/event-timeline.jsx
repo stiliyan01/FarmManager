@@ -1,5 +1,6 @@
 import Pill from '@/components/pill';
 import { eventDotColors, eventTypeColors } from '@/lib/colors';
+import { Link } from '@inertiajs/react';
 
 // Заглавие на записа: препаратът (и дозата), а ако няма препарат – видът на записа.
 function eventTitle(event) {
@@ -36,8 +37,18 @@ export default function EventTimeline({ events }) {
                         </div>
                         {event.diagnosis && <div className="mt-1 text-gray-700">{event.diagnosis}</div>}
                         {event.notes && <div className="mt-1 text-gray-700">{event.notes}</div>}
-                        <div className="text-muted-foreground mt-1 text-xs">
-                            {event.date} · {event.vet}
+                        <div className="text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                            <span>
+                                {event.date} · {event.vet}
+                            </span>
+                            {event.entered_late_days && (
+                                <span className="font-medium text-amber-800">въведен {event.entered_late_days} дни по-късно</span>
+                            )}
+                            {event.can_edit && (
+                                <Link href={route('vet-events.edit', event.id)} className="text-primary font-medium">
+                                    Редакция
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </li>

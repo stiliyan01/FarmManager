@@ -20,6 +20,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
                 'roleLabel' => $user?->role->label(),
+                // Областта на служителя на ОДБХ – показва се под името в менюто.
+                'regionName' => $user?->region?->name,
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),

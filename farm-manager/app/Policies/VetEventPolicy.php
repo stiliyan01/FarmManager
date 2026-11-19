@@ -21,9 +21,14 @@ class VetEventPolicy
         return $user->role === Role::Vet && $user->isActiveVetFor($farm);
     }
 
+    // Ветеринарят коригира само своите записи и само докато е назначен към фермата.
     public function update(User $user, VetEvent $vetEvent): bool
     {
-        return $user->role === Role::Vet && $user->isActiveVetFor($vetEvent->farm);
+        if ($user->role !== Role::Vet || $vetEvent->vet_id !== $user->id) {
+            return false;
+        }
+
+        return $user->isActiveVetFor($vetEvent->farm);
     }
 
     public function delete(User $user, VetEvent $vetEvent): bool

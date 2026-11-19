@@ -37,5 +37,21 @@ class InspectionSeeder extends Seeder
             'result' => InspectionResult::Violation,
             'findings' => 'Пропусната задължителна ваксинация срещу антракс.',
         ]);
+
+        Inspection::create([
+            'farm_id' => Farm::where('name', 'Ферма Ивански')->first()->id,
+            'inspector_id' => $inspector->id,
+            'inspected_at' => today()->subMonths(4),
+            'result' => InspectionResult::Ok,
+            'findings' => 'Ветеринарният дневник се води редовно.',
+        ]);
+
+        Inspection::create([
+            'farm_id' => Farm::where('name', 'Ферма Могила')->first()->id,
+            'inspector_id' => $inspector->id,
+            'inspected_at' => today()->subDays(10),
+            'result' => InspectionResult::Violation,
+            'findings' => 'Фермата няма обслужващ ветеринарен лекар. Животните не са ваксинирани по програмата.',
+        ]);
     }
 }

@@ -22,6 +22,13 @@ test('there is no withdrawal date when the medication has no withdrawal period',
     expect($dates['meat_withdrawal_until'])->toBeNull();
 });
 
+test('there is no quarantine without a medication', function () {
+    $dates = (new CalculateWithdrawalDates)->handle(null, Carbon::parse('2026-03-10'));
+
+    expect($dates['milk_withdrawal_until'])->toBeNull();
+    expect($dates['meat_withdrawal_until'])->toBeNull();
+});
+
 test('the event date itself is not changed', function () {
     $medication = new Medication(['withdrawal_milk_days' => 5, 'withdrawal_meat_days' => 21]);
     $eventDate = Carbon::parse('2026-03-10');

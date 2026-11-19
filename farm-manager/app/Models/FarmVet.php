@@ -5,11 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 // Назначение на ветеринар към ферма за определен период.
 class FarmVet extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $table = 'farm_vet';
 
@@ -27,6 +29,15 @@ class FarmVet extends Model
             'valid_from' => 'date',
             'valid_to' => 'date',
         ];
+    }
+
+    // Назначаването и смяната на ветеринар отиват в журнала.
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 
     public function farm(): BelongsTo

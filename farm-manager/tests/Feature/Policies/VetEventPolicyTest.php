@@ -20,6 +20,20 @@ test('assigned vet can create, update and delete vet records', function () {
     expect($vet->can('delete', $event))->toBeTrue();
 });
 
+test('vet cannot edit the records of another vet on the same farm', function () {
+    $vet = User::factory()->vet()->create();
+    $otherVet = User::factory()->vet()->create();
+    $farm = Farm::factory()->create();
+    FarmVet::factory()->create(['farm_id' => $farm->id, 'vet_id' => $vet->id]);
+
+    $animal = Animal::factory()->create(['farm_id' => $farm->id]);
+    $otherVetRecord = VetEvent::factory()->create(['animal_id' => $animal->id, 'vet_id' => $otherVet->id]);
+
+    expect($vet->can('view', $otherVetRecord))->toBeTrue();
+    expect($vet->can('update', $otherVetRecord))->toBeFalse();
+    expect($vet->can('delete', $otherVetRecord))->toBeFalse();
+});
+
 test('vet without an assignment cannot create vet records', function () {
     $vet = User::factory()->vet()->create();
     $farm = Farm::factory()->create();

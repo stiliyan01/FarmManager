@@ -9,6 +9,7 @@ use App\Models\Animal;
 use App\Models\Farm;
 use App\Models\Species;
 use App\Models\VaccinationScheme;
+use App\Models\VetEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
@@ -20,14 +21,23 @@ class AnimalController extends Controller
     {
         Gate::authorize('view', $farm);
 
-        $animals = $farm->animals()
-            ->with('species', 'breed', 'vetEvents')
-            ->orderBy('ear_tag')
-            ->get();
+        $search = $request->input('search');
+        $status = $request->input('status', 'active');
 
-        $rows = [];
-        foreach ($animals as $animal) {
-            $rows[] = [
+        $query = $farm->animals()
+            ->with('species', 'breed', 'vetEvents')
+            ->orderBy('ear_tag');
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->where('ear_tag', 'like', '%'.$search.'%');
+        }
+
+        $animals = $query->paginate(10)->withQueryString()->through(function (Animal $animal) {
+            return [
                 'id' => $animal->id,
                 'ear_tag' => $animal->ear_tag,
                 'species' => $animal->species->name,
@@ -39,11 +49,12 @@ class AnimalController extends Controller
                 'status_label' => $animal->status->label(),
                 'quarantine_until' => $animal->quarantineUntil()?->format('d.m.Y'),
             ];
-        }
+        });
 
         return Inertia::render('animals/index', [
             'farm' => $farm->only('id', 'name', 'reg_number'),
-            'animals' => $rows,
+            'animals' => $animals,
+            'filters' => ['search' => $search, 'status' => $status],
             'canAddAnimal' => $request->user()->can('create', [Animal::class, $farm]),
         ]);
     }
@@ -87,6 +98,8 @@ class AnimalController extends Controller
 
         $animal->load('farm', 'species', 'breed', 'mother', 'offspring', 'weights', 'vetEvents.medication', 'vetEvents.vet');
 
+        $user = $request->user();
+
         $events = [];
         foreach ($animal->vetEvents->sortByDesc('event_date') as $event) {
             $events[] = [
@@ -99,6 +112,8 @@ class AnimalController extends Controller
                 'diagnosis' => $event->diagnosis,
                 'notes' => $event->notes,
                 'vet' => $event->vet->name,
+                'entered_late_days' => $event->isLate() ? $event->enteredAfterDays() : null,
+                'can_edit' => $user->can('update', $event),
             ];
         }
 
@@ -160,7 +175,8 @@ class AnimalController extends Controller
             'vaccinations' => $vaccinations,
             'weights' => $weights,
             'offspring' => $offspring,
-            'canEdit' => $request->user()->can('update', $animal),
+            'canEdit' => $user->can('update', $animal),
+            'canAddVetEvent' => $user->can('create', [VetEvent::class, $animal->farm]),
         ]);
     }
 

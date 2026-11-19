@@ -36,6 +36,14 @@ class AnimalSeeder extends Seeder
             'status_changed_at' => now()->subDays(5),
             'notes' => 'Умряло след раждане.',
         ]);
+
+        // По-малките ферми в областта. Венец и Смядово още нямат животни.
+        $this->createHerd(Farm::where('name', 'Ферма Ивански')->first(), $sheep, 12);
+        $this->createHerd(Farm::where('name', 'Ферма Царев брод')->first(), $cattle, 8);
+        $this->createHerd(Farm::where('name', 'Овцеферма Велики Преслав')->first(), $sheep, 15);
+        $this->createHerd(Farm::where('name', 'Ферма Могила')->first(), $goat, 10);
+        $this->createHerd(Farm::where('name', 'Ферма Върбица')->first(), $sheep, 10);
+        $this->createHerd(Farm::where('name', 'Кравеферма Хитрино')->first(), $cattle, 6);
     }
 
     // Създава стадо от един вид: възрастни животни и малко приплод от тях.

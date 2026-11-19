@@ -19,3 +19,36 @@ export const animalStatusColors = {
     sold: 'gray',
     dead: 'gray',
 };
+
+// Статус на фермата в списъка на ОДБХ.
+export const farmStatusColors = {
+    active: 'green',
+    without_vet: 'red',
+    without_owner: 'amber',
+};
+
+export const invitationStatusColors = {
+    pending: 'amber',
+    accepted: 'green',
+    expired: 'gray',
+};
+
+export const inspectionResultColors = {
+    ok: 'green',
+    violation: 'red',
+};
+
+// Оценката на ветеринаря в контролното табло.
+export const ratingColors = {
+    ok: 'green',
+    watch: 'amber',
+    risk: 'red',
+};
+
+export const roleColors = {
+    owner: 'green',
+    vet: 'green',
+    registrar: 'blue',
+    inspector: 'blue',
+    admin: 'gray',
+};

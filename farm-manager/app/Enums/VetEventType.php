@@ -18,4 +18,16 @@ enum VetEventType: string
             VetEventType::Test => 'Изследване',
         };
     }
+
+    // За бутоните и падащите менюта във фронтенда.
+    public static function options(): array
+    {
+        $options = [];
+
+        foreach (VetEventType::cases() as $type) {
+            $options[] = ['value' => $type->value, 'label' => $type->label()];
+        }
+
+        return $options;
+    }
 }

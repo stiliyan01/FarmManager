@@ -28,5 +28,13 @@ class UserSeeder extends Seeder
         User::factory()->create(['name' => 'Стоян Иванов', 'email' => 'owner@stado.test']);
         User::factory()->create(['name' => 'Елена Георгиева', 'email' => 'owner2@stado.test']);
         User::factory()->create(['name' => 'Николай Василев', 'email' => 'owner3@stado.test']);
+
+        // Собствениците на по-малките ферми в областта
+        User::factory()->create(['name' => 'Димитър Колев', 'email' => 'owner4@stado.test']);
+        User::factory()->create(['name' => 'Мария Петкова', 'email' => 'owner5@stado.test']);
+        User::factory()->create(['name' => 'Георги Атанасов', 'email' => 'owner6@stado.test']);
+        User::factory()->create(['name' => 'Иванка Тодорова', 'email' => 'owner7@stado.test']);
+        User::factory()->create(['name' => 'Петър Стефанов', 'email' => 'owner8@stado.test']);
+        User::factory()->create(['name' => 'Росица Илиева', 'email' => 'owner9@stado.test']);
     }
 }

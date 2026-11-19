@@ -23,8 +23,8 @@ class VetEventSeeder extends Seeder
         $farms = Farm::with('activeVetAssignment.vet')->get();
 
         foreach ($farms as $farm) {
-            // Ферма без ветеринар още няма записи.
-            if ($farm->activeVetAssignment === null) {
+            // Ферма без ветеринар или без животни още няма записи.
+            if ($farm->activeVetAssignment === null || $farm->animals()->doesntExist()) {
                 continue;
             }
 
@@ -55,6 +55,12 @@ class VetEventSeeder extends Seeder
             }
 
             $eventDate = today()->subDays(fake()->numberBetween(30, 150));
+
+            // Тук антраксът е ваксиниран преди почти година – следващата ваксинация предстои до дни.
+            $dueSoonFarms = ['Козеферма Каспичан', 'Кравеферма Нови пазар', 'Кравеферма Хитрино'];
+            if (in_array($farm->name, $dueSoonFarms) && $scheme->name === 'Антракс') {
+                $eventDate = today()->subDays(fake()->numberBetween(354, 361));
+            }
 
             // В Хан Крум ваксинацията е пропусната – ще излезе като просрочена.
             if ($farm->name === 'Ферма Хан Крум') {
